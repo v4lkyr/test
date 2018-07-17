@@ -1,0 +1,59 @@
+--- net/bluetooth/smp.c
++++ net/bluetooth/smp.c
+@@ -231,7 +233,7 @@ static void build_pairing_cmd(struct l2cap_conn *conn,
+ 		req->max_key_size = SMP_MAX_ENC_KEY_SIZE;
+ 		req->init_key_dist = 0;
+ 		req->resp_key_dist = dist_keys;
+-		req->auth_req = authreq;
++		req->auth_req = (authreq & AUTH_REQ_MASK);
+ 		return;
+ 	}
+ 
+@@ -240,7 +242,7 @@ static void build_pairing_cmd(struct l2cap_conn *conn,
+ 	rsp->max_key_size = SMP_MAX_ENC_KEY_SIZE;
+ 	rsp->init_key_dist = 0;
+ 	rsp->resp_key_dist = req->resp_key_dist & dist_keys;
+-	rsp->auth_req = authreq;
++	rsp->auth_req = (authreq & AUTH_REQ_MASK);
+ }
+ 
+ static u8 check_enc_key_size(struct l2cap_conn *conn, __u8 max_key_size)
+@@ -268,10 +270,10 @@ static void smp_failure(struct l2cap_conn *conn, u8 reason, u8 send)
+ 	mgmt_auth_failed(conn->hcon->hdev, conn->dst, hcon->type,
+ 			 hcon->dst_type, reason);
+ 
+-	if (test_and_clear_bit(HCI_CONN_LE_SMP_PEND, &conn->hcon->flags)) {
+-		cancel_delayed_work_sync(&conn->security_timer);
++	cancel_delayed_work_sync(&conn->security_timer);
++
++	if (test_and_clear_bit(HCI_CONN_LE_SMP_PEND, &conn->hcon->flags))
+ 		smp_chan_destroy(conn);
+-	}
+ }
+ 
+ #define JUST_WORKS	0x00
+@@ -325,8 +327,11 @@ static int tk_request(struct l2cap_conn *conn, u8 remote_oob, u8 auth,
+ 	}
+ 
+ 	/* Not Just Works/Confirm results in MITM Authentication */
+-	if (method != JUST_CFM)
++	if (method != JUST_CFM) {
+ 		set_bit(SMP_FLAG_MITM_AUTH, &smp->smp_flags);
++		if (hcon->pending_sec_level < BT_SECURITY_HIGH)
++			hcon->pending_sec_level = BT_SECURITY_HIGH;
++	}
+ 
+ 	/* If both devices have Keyoard-Display I/O, the master
+ 	 * Confirms and the slave Enters the passkey.
+@@ -755,9 +760,9 @@ static u8 smp_cmd_security_req(struct l2cap_conn *conn, struct sk_buff *skb)
+ 	return 0;
+ }
+ 
+-int smp_conn_security(struct l2cap_conn *conn, __u8 sec_level)
++int smp_conn_security(struct hci_conn *hcon, __u8 sec_level)
+ {
+-	struct hci_conn *hcon = conn->hcon;
++	struct l2cap_conn *conn = hcon->l2cap_data;
+ 	struct smp_chan *smp = conn->smp_chan;
+ 	__u8 authreq;
+ 

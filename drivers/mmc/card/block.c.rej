@@ -1,0 +1,51 @@
+--- drivers/mmc/card/block.c
++++ drivers/mmc/card/block.c
+@@ -1070,6 +1089,15 @@ static int mmc_blk_err_check(struct mmc_card *card,
+ 	 */
+ 	if (!mmc_host_is_spi(card->host) && rq_data_dir(req) != READ) {
+ 		u32 status;
++
++		/* Check stop command response */
++		if (brq->stop.resp[0] & R1_ERROR) {
++			pr_err("%s: %s: general error sending stop command, stop cmd response %#x\n",
++			       req->rq_disk->disk_name, __func__,
++			       brq->stop.resp[0]);
++			gen_err = 1;
++		}
++
+ 		do {
+ 			int err = get_card_status(card, &status, 5);
+ 			if (err) {
+@@ -1365,9 +1408,11 @@ static int mmc_blk_issue_rw_rq(struct mmc_queue *mq, struct request *rqc)
+ 			break;
+ 		case MMC_BLK_CMD_ERR:
+ 			ret = mmc_blk_cmd_err(md, card, brq, req, ret);
+-			if (!mmc_blk_reset(md, card->host, type))
+-				break;
+-			goto cmd_abort;
++			if (mmc_blk_reset(md, card->host, type))
++				goto cmd_abort;
++			if (!ret)
++				goto start_new_req;
++			break;
+ 		case MMC_BLK_RETRY:
+ 			if (retry++ < 5)
+ 				break;
+@@ -1464,7 +1509,8 @@ static int mmc_blk_issue_rq(struct mmc_queue *mq, struct request *req)
+ 		/* complete ongoing async transfer before issuing discard */
+ 		if (card->host->areq)
+ 			mmc_blk_issue_rw_rq(mq, NULL);
+-		if (req->cmd_flags & REQ_SECURE)
++		if (req->cmd_flags & REQ_SECURE &&
++			!(card->quirks & MMC_QUIRK_SEC_ERASE_TRIM_BROKEN))
+ 			ret = mmc_blk_issue_secdiscard_rq(mq, req);
+ 		else
+ 			ret = mmc_blk_issue_discard_rq(mq, req);
+@@ -1764,6 +1810,7 @@ force_ro_fail:
+ #define CID_MANFID_SANDISK	0x2
+ #define CID_MANFID_TOSHIBA	0x11
+ #define CID_MANFID_MICRON	0x13
++#define CID_MANFID_SAMSUNG	0x15
+ 
+ static const struct mmc_fixup blk_fixups[] =
+ {
