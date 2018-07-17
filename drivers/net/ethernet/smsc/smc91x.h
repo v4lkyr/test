@@ -208,7 +208,7 @@ SMC_outw(u16 val, void __iomem *ioaddr, int reg)
 
 #define RPC_LSA_DEFAULT		RPC_LED_TX_RX
 #define RPC_LSB_DEFAULT		RPC_LED_100_10
-
+/*
 #elif	defined(CONFIG_ARCH_VERSATILE)
 
 #define SMC_CAN_USE_8BIT	1
@@ -224,7 +224,7 @@ SMC_outw(u16 val, void __iomem *ioaddr, int reg)
 #define SMC_outl(v, a, r)	writel(v, (a) + (r))
 #define SMC_insl(a, r, p, l)	readsl((a) + (r), p, l)
 #define SMC_outsl(a, r, p, l)	writesl((a) + (r), p, l)
-#define SMC_IRQ_FLAGS		(-1)	/* from resource */
+#define SMC_IRQ_FLAGS		(-1)*/	/* from resource */
 
 #elif defined(CONFIG_ARCH_MSM)
 
