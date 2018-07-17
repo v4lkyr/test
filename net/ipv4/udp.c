@@ -1181,11 +1181,12 @@ int udp_recvmsg(struct kiocb *iocb, struct sock *sk, struct msghdr *msg,
 	/*
 	 *	Check any passed addresses
 	 */
-	if (addr_len)
-		*addr_len = sizeof(*sin);
+	/*if (addr_len)
+		*addr_len = sizeof(*sin);*/
 
 	if (flags & MSG_ERRQUEUE)
-		return ip_recv_error(sk, msg, len);
+		return ip_recv_error(sk, msg, len, addr_len);
+		/*return ip_recv_error(sk, msg, len);*/
 
 try_again:
 	skb = __skb_recv_datagram(sk, flags | (noblock ? MSG_DONTWAIT : 0),

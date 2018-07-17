@@ -502,10 +502,12 @@ static const struct file_operations hidraw_ops = {
 	.llseek =	noop_llseek,
 };
 
-void hidraw_report_event(struct hid_device *hid, u8 *data, int len)
+/*void hidraw_report_event(struct hid_device *hid, u8 *data, int len)*/
+int hidraw_report_event(struct hid_device *hid, u8 *data, int len)
 {
 	struct hidraw *dev = hid->hidraw;
 	struct hidraw_list *list;
+	int ret = 0;
 
 	list_for_each_entry(list, &dev->list, node) {
 #ifdef CONFIG_HID_SONY_PS3_CTRL_BT
@@ -513,13 +515,24 @@ void hidraw_report_event(struct hid_device *hid, u8 *data, int len)
 				|| !(list->node.next))
 			break;
 #endif
-		list->buffer[list->head].value = kmemdup(data, len, GFP_ATOMIC);
+		/*list->buffer[list->head].value = kmemdup(data, len, GFP_ATOMIC);*/
+		int new_head = (list->head + 1) & (HIDRAW_BUFFER_SIZE - 1);
+
+		if (new_head == list->tail)
+			continue;
+
+		if (!(list->buffer[list->head].value = kmemdup(data, len, GFP_ATOMIC))) {
+			ret = -ENOMEM;
+			break;
+		}
 		list->buffer[list->head].len = len;
-		list->head = (list->head + 1) & (HIDRAW_BUFFER_SIZE - 1);
+		/*list->head = (list->head + 1) & (HIDRAW_BUFFER_SIZE - 1);*/
+		list->head = new_head;
 		kill_fasync(&list->fasync, SIGIO, POLL_IN);
 	}
 
 	wake_up_interruptible(&dev->wait);
+	return ret;
 }
 EXPORT_SYMBOL_GPL(hidraw_report_event);
 
