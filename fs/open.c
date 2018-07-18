@@ -411,7 +411,8 @@ SYSCALL_DEFINE1(fchdir, unsigned int, fd)
 	int error, fput_needed;
 
 	error = -EBADF;
-	file = fget(fd);
+	/*file = fget(fd);*/
+	file = fget_raw_light(fd, &fput_needed);
 	if (!file)
 		goto out;
 
