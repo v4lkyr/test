@@ -1249,9 +1249,9 @@ int xhci_bus_suspend(struct usb_hcd *hcd)
 				ndelay(100);
 		}
 
-		/*if (hcd->speed != HCD_USB3) {
+		/*if (hcd->speed != HCD_USB3) {*/
 			/* enable remote wake up for USB 2.0 */
-			__le32 __iomem *addr;
+			/*__le32 __iomem *addr;
 			u32 tmp;*/
 
 			/* Add one to the port status register address to get

@@ -4195,7 +4195,7 @@ wl_cfg80211_disconnect(struct wiphy *wiphy, struct net_device *dev,
 	bool act = false;
 	s32 err = 0;
 	u8 *curbssid;
-	dhd_pub_t *dhdp = (dhd_pub_t *)(cfg->pub);
+	/*dhd_pub_t *dhdp = (dhd_pub_t *)(cfg->pub);*/
 	WL_ERR(("Reason %d\n", reason_code));
 	RETURN_EIO_IF_NOT_UP(cfg);
 	act = *(bool *) wl_read_prof(cfg, dev, WL_PROF_ACT);
@@ -8161,11 +8161,11 @@ static s32 wl_inform_single_bss(struct bcm_cfg80211 *cfg, struct wl_bss_info *bi
 	struct wl_scan_req *sr = wl_to_sr(cfg);
 	struct beacon_proberesp *beacon_proberesp;
 	struct cfg80211_bss *cbss = NULL;
-	dhd_pub_t *dhdp = (dhd_pub_t *)(cfg->pub);
+	/*dhd_pub_t *dhdp = (dhd_pub_t *)(cfg->pub);
 	log_conn_event_t *event_data = NULL;
 	tlv_log *tlv_data = NULL;
 	u32 alloc_len;
-	u32 payload_len;
+	u32 payload_len;*/
 	s32 mgmt_type;
 	s32 signal;
 	u32 freq;
@@ -8313,7 +8313,7 @@ static s32 wl_inform_single_bss(struct bcm_cfg80211 *cfg, struct wl_bss_info *bi
 	}
 #endif /* WL_SCHED_SCAN */
 
-out_err:
+/*out_err:*/
 	kfree(notif_bss_info);
 	return err;
 }

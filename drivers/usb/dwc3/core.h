@@ -774,6 +774,7 @@ struct dwc3 {
 	unsigned		delayed_status:1;
 	unsigned		needs_fifo_resize:1;
 	unsigned		resize_fifos:1;
+	unsigned		start_config_issued:1;
 
 	enum dwc3_ep0_next	ep0_next_event;
 	enum dwc3_ep0_state	ep0state;
