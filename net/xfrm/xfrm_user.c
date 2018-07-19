@@ -2408,7 +2408,7 @@ static int xfrm_exp_state_notify(struct xfrm_state *x, const struct km_event *c)
 {
 	struct net *net = xs_net(x);
 	struct sk_buff *skb;
-	int err;
+	/*int err;*/
 
 	skb = nlmsg_new(xfrm_expire_msgsize(), GFP_ATOMIC);
 	if (skb == NULL)
@@ -2951,7 +2951,7 @@ static int xfrm_send_mapping(struct xfrm_state *x, xfrm_address_t *ipaddr,
 {
 	struct net *net = xs_net(x);
 	struct sk_buff *skb;
-	int err;
+	/*int err;*/
 
 	if (x->id.proto != IPPROTO_ESP)
 		return -EINVAL;

@@ -333,7 +333,6 @@ int snd_ctl_add(struct snd_card *card, struct snd_kcontrol *kcontrol)
 {
 	struct snd_ctl_elem_id id;
 	unsigned int idx;
-	unsigned int count;
 	int err = -EINVAL;
 
 	if (! kcontrol)
@@ -396,6 +395,7 @@ int snd_ctl_replace(struct snd_card *card, struct snd_kcontrol *kcontrol,
 {
 	struct snd_ctl_elem_id id;
 	unsigned int idx;
+	unsigned int count;
 	struct snd_kcontrol *old;
 	int ret;
 
@@ -459,7 +459,7 @@ EXPORT_SYMBOL(snd_ctl_replace);
 int snd_ctl_remove(struct snd_card *card, struct snd_kcontrol *kcontrol)
 {
 	struct snd_ctl_elem_id id;
-	unsigned int count;
+	/*unsigned int count;*/
 	unsigned int idx;
 
 	if (snd_BUG_ON(!card || !kcontrol))

@@ -897,7 +897,7 @@ void snd_usb_init_substream(struct snd_usb_stream *as,
 	subs->txfr_quirk = as->chip->txfr_quirk;
 	subs->ops = audio_urb_ops[stream];
 	subs->speed = snd_usb_get_speed(subs->dev);
-	if (subs->speed >= USB_SPEED_HIGH) &&
+	if ((subs->speed >= USB_SPEED_HIGH) &&
 		(stream == SNDRV_PCM_STREAM_CAPTURE))
 		subs->ops.prepare_sync = prepare_capture_sync_urb_hs;
 	subs->pkt_offset_adj = 0;

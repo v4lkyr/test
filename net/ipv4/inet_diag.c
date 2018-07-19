@@ -696,36 +696,6 @@ static inline void inet_diag_req_addrs(const struct sock *sk,
 	}
 }
 
-/* Get the IPv4, IPv6, or IPv4-mapped-IPv6 local and remote addresses
- * from a request_sock. For IPv4-mapped-IPv6 we must map IPv4 to IPv6.
- */
-static inline void inet_diag_req_addrs(const struct sock *sk,
-				       const struct request_sock *req,
-				       struct inet_diag_entry *entry)
-{
-	struct inet_request_sock *ireq = inet_rsk(req);
-
-#if IS_ENABLED(CONFIG_IPV6)
-	if (sk->sk_family == AF_INET6) {
-		if (req->rsk_ops->family == AF_INET6) {
-			entry->saddr = inet6_rsk(req)->loc_addr.s6_addr32;
-			entry->daddr = inet6_rsk(req)->rmt_addr.s6_addr32;
-		} else if (req->rsk_ops->family == AF_INET) {
-			ipv6_addr_set_v4mapped(ireq->loc_addr,
-					       &entry->saddr_storage);
-			ipv6_addr_set_v4mapped(ireq->rmt_addr,
-					       &entry->daddr_storage);
-			entry->saddr = entry->saddr_storage.s6_addr32;
-			entry->daddr = entry->daddr_storage.s6_addr32;
-		}
-	} else
-#endif
-	{
-		entry->saddr = &ireq->loc_addr;
-		entry->daddr = &ireq->rmt_addr;
-	}
-}
-
 static int inet_diag_fill_req(struct sk_buff *skb, struct sock *sk,
 			      struct request_sock *req, u32 pid, u32 seq,
 			      const struct nlmsghdr *unlh)
